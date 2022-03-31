@@ -10,6 +10,9 @@
 
 📄 index.html
 
+```
+📄 index.html
+
 📁 js
 ↳ 📄 helpers.js
 ↳ 📄 app.js
@@ -24,6 +27,7 @@
 📁 test
 ↳ 📄 ControllerSpec.js
 ↳ 📄 SpecRunner.html
+```
 
 <p>Vous trouverez plus d'information sur l'application dans le <a href="https://github.com/Jean-MarcG/ocr-p8/wiki">wiki</a>
 
