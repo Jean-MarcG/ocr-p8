@@ -1,5 +1,3 @@
-# ocr-p8
-
 <h1>To-do-list</h1>
 
 <p>Correction et amélioration d'une application de to-do list pour le projet 8 du parcours de développeur d'application Frontend - OpenClassrooms -.</p>
