@@ -108,16 +108,16 @@ Controller.prototype.addItem = function (title) {
 	};
   ```
   
-  <p>Les améliorations apportées au code sont consultables dans le <a href="https://github.com/Jean-MarcG/ocr-p8/wiki">wiki</a>.
+  <p>Les autres corrections et améliorations apportées au code sont consultables dans le <a href="https://github.com/Jean-MarcG/ocr-p8/wiki">wiki</a>.
   
   <h2>Etape 2 : où sont les tests ?!</h2>
   
-  <p>Tests unitaires réalisés avec le framework<a href="https://github.com/jasmine/"> <strong>Jasmine</strong></a></p>.
+  <p>Tests unitaires réalisés avec le framework<a href="https://github.com/jasmine/"> <strong>Jasmine</strong></a></p>
   
   <p>Pré-requis :</p>
   
   <ul>
-    <li>installer <a href="https://www.npmjs.com/get-npm?utm_source=house&amp;utm_medium=homepage&amp;utm_campaign=free%20orgs&amp;utm_term=Install%20npm" rel="nofollow">NPM et NodeJs</a></li>
+    <li>installer <a href="https://www.npmjs.com/get-npm?utm_source=house&amp;utm_medium=homepage&amp;utm_campaign=free%20orgs&amp;utm_term=Install%20npm">NPM et NodeJs</a></li>
     <li>installer <a href="https://github.com/jasmine/jasmine/releases"> <strong>Jasmine</strong></a></li>
   </ul>
   
