@@ -10,7 +10,6 @@
 
 <p>Enfin une documentation utilisateur ainsi qu'une documentation technique sont attendues.</p>
 
-
 <h2>Structure de l'application</h2>
 
 <p>Arborescence représentant les principaux fichiers de l'application, suivi de leur déscription détaillé.</p>
@@ -42,18 +41,18 @@
 
 <p>Faute de frappe: ligne 96 controller.js : Controller.prototype.addItem à la place de Controller.prototype.adddItem</p>
 
-```
+```javascript
 Controller.prototype.addItem = function (title) {
-	var self = this;
+  var self = this;
 
-	if (title.trim() === '') {
-		return;
-	}
+  if (title.trim() === "") {
+    return;
+  }
 
-	self.model.create(title, function () {
-		self.view.render('clearNewTodo');
-		self._filter(true);
-	});
+  self.model.create(title, function () {
+    self.view.render("clearNewTodo");
+    self._filter(true);
+  });
 };
 ```
 
@@ -67,47 +66,45 @@ Controller.prototype.addItem = function (title) {
 <p dir="auto">Il s' agit donc de notre <strong>identifiant unique</strong>.</p>
 </blockquote>
 
+```javascript
+Store.prototype.save = function (updateData, callback, id) {
+  var data = JSON.parse(localStorage[this._dbName]);
+  var todos = data.todos;
+
+  callback = callback || function () {};
+
+  // Generate an ID
+  var newId = Date.now();
+  // var charset = "0123456789";
+
+  // for (var i = 0; i < 6; i++) {
+  // 	newId += charset.charAt(Math.floor(Math.random() * charset.length));
+  // }
+
+  // If an ID was actually given, find the item and update each property
+  if (id) {
+    for (var i = 0; i < todos.length; i++) {
+      if (todos[i].id === id) {
+        for (var key in updateData) {
+          todos[i][key] = updateData[key];
+        }
+        break;
+      }
+    }
+
+    localStorage[this._dbName] = JSON.stringify(data);
+    callback.call(this, todos);
+  } else {
+    // Assign an ID
+    updateData.id = parseInt(newId);
+
+    todos.push(updateData);
+    localStorage[this._dbName] = JSON.stringify(data);
+    callback.call(this, [updateData]);
+  }
+};
 ```
-	Store.prototype.save = function (updateData, callback, id) {
-		var data = JSON.parse(localStorage[this._dbName]);
-		var todos = data.todos;
-		
-		callback = callback || function () {};
-		
-		// Generate an ID
-		var newId = Date.now(); 
-		// var charset = "0123456789";
-		
-		// for (var i = 0; i < 6; i++) {
-		// 	newId += charset.charAt(Math.floor(Math.random() * charset.length));
-		// }
-		
-		// If an ID was actually given, find the item and update each property
-		if (id) {
-			for (var i = 0; i < todos.length; i++) {
-				if (todos[i].id === id) {
-					for (var key in updateData) {
-						todos[i][key] = updateData[key];
-					}
-					break;
-				}
-			}
-			
-			localStorage[this._dbName] = JSON.stringify(data);
-			callback.call(this, todos);
-		} else {
-			
-			// Assign an ID
-			updateData.id = parseInt(newId);
-			
-			
-			todos.push(updateData);
-			localStorage[this._dbName] = JSON.stringify(data);
-			callback.call(this, [updateData]);
-		}
-	};
-  ```
-  
+
   <p>Les autres corrections et améliorations apportées au code sont consultables dans le <a href="https://github.com/Jean-MarcG/ocr-p8/wiki">wiki</a>.
   
   <h2>Etape 2 : où sont les tests ?!</h2>
@@ -140,7 +137,3 @@ Controller.prototype.addItem = function (title) {
 </blockquote>
 
   <p>Les tests ajoutés au projet sont consultables dans le <a href="https://github.com/Jean-MarcG/ocr-p8/wiki">wiki</a>.
-
-
-  
-  
