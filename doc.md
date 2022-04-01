@@ -1,6 +1,46 @@
 <p>Liste des différentes améliorations apportées au code de l'application :</p>
 
-<h2><a href="#correction-des-bugs">Correction des bugs</a></h2>
+<ul>
+    <li>
+    <a href="#correction-des-bugs">Correction des bugs</a>
+    <ul>
+        <li><a href="#controllerjs---additem---faute-de-frappe"><code>controller.js - addItem()</code> - Faute de frappe</a></li>
+        <li><a href="#storejs---save---cr%c3%a9ation-des-id"><code>store.js - save()</code> - Création des ID</a></li>
+    </ul>
+    </li>
+<li>
+<a href="#simplification-du-code">Simplification du code</a>
+<ul>
+<li>
+<a href="#suppression-code-inutile">Suppression code inutile</a>
+<ul>
+<li>
+<a href="#une-boucle-inutile">Une boucle inutile</a>
+<ul>
+<li><a href="#controllerjs---removeitem-157"><code>controller.js - removeItem()</code> #157</a></li>
+</ul>
+</li>
+<li>
+<a href="#des-conditions-am%c3%a9lior%c3%a9es">Des conditions améliorées</a>
+<ul>
+<li><a href="#controllerjs---additem-99"><code>controller.js - addItem()</code> #99</a></li>
+<li><a href="#storejs---find-36"><code>store.js - find()</code> #36</a></li>
+<li><a href="#viewjs---elementcomplete-60"><code>view.js - _elementComplete()</code> #60</a></li>
+<li><a href="#viewjs---edititem-80"><code>view.js - _editItem()</code> #80</a></li>
+<li><a href="#viewjs---edititemdone-101"><code>view.js - _editItemDone()</code> #101</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a href="#refactorisation-de-la-m%c3%a9thode-bind">Refactorisation de la méthode <code>bind()</code></a>
+<ul>
+<li><a href="#viewjs---bind-214"><code>view.js - bind()</code> #214</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
 <ul>
 <li><a href="#controllerjs---additem---faute-de-frappe"><code>controller.js - addItem()</code></a>- Faute de frappe</li>
@@ -141,7 +181,7 @@ removeItem(id) {
 <a id="user-content-des-conditions-améliorées" class="anchor" href="#des-conditions-améliorées"></a>Des conditions améliorées</h4>
 <p>Les 5 cas suivant présentent une amélioration de la syntaxe du code. Au lieu d'utiliser une condition pour effectuer un simple <code>return</code>, nous allons utiliser une condition dans tous le code. C'est une manière plus logique de faire.</p>
 <h5>
-<a id="user-content-controllerjs---additem-86" class="anchor" href="#controllerjs---additem-86"></a><code>controller.js - addItem()</code> #86</h5>
+<a id="user-content-controllerjs---additem-99" class="anchor" href="#controllerjs---additem-99"></a><code>controller.js - addItem()</code> #99</h5>
 <p>Code initial :</p>
 
 ```javascript
@@ -157,4 +197,291 @@ Controller.prototype.adddItem = function (title) {
     self._filter(true);
   });
 };
+```
+
+<p>Code amélioré :</p>
+
+```javascript
+addItem(title) {
+    var self = this;
+
+    if (title.trim() !== '') {
+        self.model.create(title, function() {
+            self.view.render('clearNewTodo');
+            self._filter(true);
+        });
+    }
+}
+
+```
+
+<h5>
+<a id="user-content-storejs---find-36" class="anchor" href="#storejs---find-36"></a><code>store.js - find()</code> #36</h5>
+
+<p>Code initial :</p>
+
+```javascript
+Store.prototype.find = function (query, callback) {
+  if (!callback) {
+    return;
+  }
+
+  var todos = JSON.parse(localStorage[this._dbName]).todos;
+
+  callback.call(
+    this,
+    todos.filter(function (todo) {
+      for (var q in query) {
+        if (query[q] !== todo[q]) {
+          return false;
+        }
+      }
+      return true;
+    })
+  );
+};
+```
+
+<p>Code amélioré :</p>
+
+```javascript
+find(query, callback) {
+    if (callback) {
+        var todos = JSON.parse(localStorage[this._dbName]).todos;
+        callback.call(
+            this,
+            todos.filter(function(todo) {
+                for (var q in query) {
+                    if (query[q] !== todo[q]) {
+                        return false;
+                    }
+                }
+                return true;
+            })
+        );
+    }
+}
+```
+
+<h5>
+<a id="user-content-viewjs---_elementcomplete-60" class="anchor" href="#viewjs---_elementcomplete-60"></a><code>view.js - _elementComplete()</code> #60</h5>
+
+<p>Code initial :</p>
+
+```javascript
+View.prototype._elementComplete = function (id, completed) {
+  var listItem = qs('[data-id="' + id + '"]');
+
+  if (!listItem) {
+    return;
+  }
+
+  listItem.className = completed ? "completed" : "";
+
+  // In case it was toggled from an event and not by clicking the checkbox
+  qs("input", listItem).checked = completed;
+};
+```
+
+<p>Code amélioré :</p>
+
+```javascript
+_elementComplete(id, completed) {
+    var listItem = qs('[data-id="' + id + '"]');
+
+    if (listItem) {
+        listItem.className = completed ? 'completed' : '';
+        // On définit la tâche comme terminée par défaut
+        qs('input', listItem).checked = completed;
+    }
+}
+```
+
+<h5>
+<a id="user-content-viewjs---_edititem-80" class="anchor" href="#viewjs---_edititem-80"></a><code>view.js - _editItem()</code> #80</h5>
+
+<p>Code initial :</p>
+
+```javascript
+View.prototype._editItem = function (id, title) {
+  var listItem = qs('[data-id="' + id + '"]');
+
+  if (!listItem) {
+    return;
+  }
+
+  listItem.className = listItem.className + " editing";
+
+  var input = document.createElement("input");
+  input.className = "edit";
+
+  listItem.appendChild(input);
+  input.focus();
+  input.value = title;
+};
+```
+
+<p>Code amélioré :</p>
+
+```javascript
+_editItem(id, title) {
+    var listItem = qs('[data-id="' + id + '"]');
+
+    if (listItem) {
+        listItem.className = listItem.className + ' editing';
+        var input = document.createElement('input');
+        input.className = 'edit';
+        listItem.appendChild(input);
+        input.focus();
+        input.value = title;
+    }
+}
+```
+
+<h5>
+<a id="user-content-viewjs---_edititemdone-101" class="anchor" href="#viewjs---_edititemdone-101"></a><code>view.js - _editItemDone()</code> #101</h5>
+
+<p>Code initial :</p>
+
+```javascript
+View.prototype._editItemDone = function (id, title) {
+  var listItem = qs('[data-id="' + id + '"]');
+
+  if (!listItem) {
+    return;
+  }
+
+  var input = qs("input.edit", listItem);
+  listItem.removeChild(input);
+
+  listItem.className = listItem.className.replace("editing", "");
+
+  qsa("label", listItem).forEach(function (label) {
+    label.textContent = title;
+  });
+};
+```
+
+<p>Code amélioré :</p>
+
+```javascript
+_editItemDone(id, title) {
+    var listItem = qs('[data-id="' + id + '"]');
+
+    if (listItem) {
+        var input = qs('input.edit', listItem);
+        listItem.removeChild(input);
+        listItem.className = listItem.className.replace('editing', '');
+        qsa('label', listItem).forEach(function(label) {
+            label.textContent = title;
+        });
+    }
+}
+```
+
+<h3>
+<a id="user-content-refactorisation-de-la-méthode-bind" class="anchor" href="#refactorisation-de-la-m%C3%A9thode-bind"></a>Refactorisation de la méthode <code>bind()</code>
+</h3>
+
+<p>Nous avons remplacé les conditions <code>if else if</code> par un traitement <code>switch</code>. Ce choix à plusieurs avantages :</p>
+
+<ul>
+<li>Lisibilité du code</li>
+<li>Maintenabilité du code</li>
+<li>Performance du traitement</li>
+</ul>
+
+<p>A plus grande échelle, ce choix améliorerait surement les performances d'un projet.</p>
+
+<h4>
+<a id="user-content-viewjs---bind-214" class="anchor" href="#viewjs---bind-214"></a><code>view.js - bind()</code> #214</h4>
+
+<p>Code initial :</p>
+
+```javascript
+View.prototype.bind = function (event, handler) {
+  var self = this;
+  if (event === "newTodo") {
+    $on(self.$newTodo, "change", function () {
+      handler(self.$newTodo.value);
+    });
+  } else if (event === "removeCompleted") {
+    $on(self.$clearCompleted, "click", function () {
+      handler();
+    });
+  } else if (event === "toggleAll") {
+    $on(self.$toggleAll, "click", function () {
+      handler({ completed: this.checked });
+    });
+  } else if (event === "itemEdit") {
+    $delegate(self.$todoList, "li label", "dblclick", function () {
+      handler({ id: self._itemId(this) });
+    });
+  } else if (event === "itemRemove") {
+    $delegate(self.$todoList, ".destroy", "click", function () {
+      handler({ id: self._itemId(this) });
+    });
+  } else if (event === "itemToggle") {
+    $delegate(self.$todoList, ".toggle", "click", function () {
+      handler({
+        id: self._itemId(this),
+        completed: this.checked,
+      });
+    });
+  } else if (event === "itemEditDone") {
+    self._bindItemEditDone(handler);
+  } else if (event === "itemEditCancel") {
+    self._bindItemEditCancel(handler);
+  }
+};
+```
+
+<p>Code amélioré :</p>
+
+```javascript
+bind(event, handler) {
+    var self = this;
+    // amélioration
+    switch (event) {
+        case 'newTodo':
+            $on(self.$newTodo, 'change', function() {
+                handler(self.$newTodo.value);
+            });
+            break;
+        case 'removeCompleted':
+            $on(self.$clearCompleted, 'click', function() {
+                handler();
+            });
+            break;
+        case 'toggleAll':
+            $on(self.$toggleAll, 'click', function() {
+                handler({ completed: this.checked });
+            });
+            break;
+        case 'itemEdit':
+            $delegate(self.$todoList, 'li label', 'dblclick', function() {
+                handler({ id: self._itemId(this) });
+            });
+            break;
+        case 'itemRemove':
+            $delegate(self.$todoList, '.destroy', 'click', function() {
+                handler({ id: self._itemId(this) });
+            });
+            break;
+        case 'itemToggle':
+            $delegate(self.$todoList, '.toggle', 'click', function() {
+                handler({
+                    id: self._itemId(this),
+                    completed: this.checked,
+                });
+            });
+            break;
+        case 'itemEditDone':
+            self._bindItemEditDone(handler);
+            break;
+        case 'itemEditCancel':
+            self._bindItemEditCancel(handler);
+            break;
+    }
+}
 ```
