@@ -24,7 +24,7 @@
 <a href="#des-conditions-am%c3%a9lior%c3%a9es">Des conditions améliorées</a>
 <ul>
 <li><a href="#controllerjs---additem-99"><code>controller.js - addItem()</code> #99</a></li>
-<li><a href="#storejs---find-36"><code>store.js - find()</code> #36</a></li>
+<li><a href="#storejs---find-42"><code>store.js - find()</code> #42</a></li>
 <li><a href="#viewjs---elementcomplete-60"><code>view.js - _elementComplete()</code> #60</a></li>
 <li><a href="#viewjs---edititem-80"><code>view.js - _editItem()</code> #80</a></li>
 <li><a href="#viewjs---edititemdone-101"><code>view.js - _editItemDone()</code> #101</a></li>
@@ -216,7 +216,7 @@ addItem(title) {
 ```
 
 <h5>
-<a id="user-content-storejs---find-36" class="anchor" href="#storejs---find-36"></a><code>store.js - find()</code> #36</h5>
+<a id="user-content-storejs---find-42" class="anchor" href="#storejs---find-42"></a><code>store.js - find()</code> #42</h5>
 
 <p>Code initial :</p>
 
