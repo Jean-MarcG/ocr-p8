@@ -95,15 +95,23 @@
 	Controller.prototype.addItem = function (title) {
 		var self = this;
 
-		if (title.trim() === '') {
-			return;
-		}
+	// 	if (title.trim() === '') {
+	// 		return;
+	// 	}
 
-		self.model.create(title, function () {
-			self.view.render('clearNewTodo');
-			self._filter(true);
-		});
-	};
+	// 	self.model.create(title, function () {
+	// 		self.view.render('clearNewTodo');
+	// 		self._filter(true);
+	// 	});
+	// };
+
+		// amélioration
+		if (title.trim() !== '') {
+			self.model.create(title, function() {
+				self.view.render('clearNewTodo');
+				self._filter(true);
+			});
+		}
 
 	/*
 	 * Triggers the item editing mode.
