@@ -25,8 +25,8 @@
 <ul>
 <li><a href="#controllerjs---additem-99"><code>controller.js - addItem()</code> #99</a></li>
 <li><a href="#storejs---find-42"><code>store.js - find()</code> #42</a></li>
-<li><a href="#viewjs---elementcomplete-60"><code>view.js - _elementComplete()</code> #60</a></li>
-<li><a href="#viewjs---edititem-80"><code>view.js - _editItem()</code> #80</a></li>
+<li><a href="#viewjs---elementcomplete-48"><code>view.js - _elementComplete()</code> #48</a></li>
+<li><a href="#viewjs---edititem-71"><code>view.js - _editItem()</code> #71</a></li>
 <li><a href="#viewjs---edititemdone-101"><code>view.js - _editItemDone()</code> #101</a></li>
 </ul>
 </li>
@@ -264,7 +264,7 @@ find(query, callback) {
 ```
 
 <h5>
-<a id="user-content-viewjs---_elementcomplete-60" class="anchor" href="#viewjs---_elementcomplete-60"></a><code>view.js - _elementComplete()</code> #60</h5>
+<a id="user-content-viewjs---_elementcomplete-48" class="anchor" href="#viewjs---_elementcomplete-48"></a><code>view.js - _elementComplete()</code> #48</h5>
 
 <p>Code initial :</p>
 
@@ -298,7 +298,7 @@ _elementComplete(id, completed) {
 ```
 
 <h5>
-<a id="user-content-viewjs---_edititem-80" class="anchor" href="#viewjs---_edititem-80"></a><code>view.js - _editItem()</code> #80</h5>
+<a id="user-content-viewjs---_edititem-71" class="anchor" href="#viewjs---_edititem-71"></a><code>view.js - _editItem()</code> #71</h5>
 
 <p>Code initial :</p>
 

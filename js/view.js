@@ -46,50 +46,84 @@
 	};
 
 	View.prototype._elementComplete = function (id, completed) {
+		// var listItem = qs('[data-id="' + id + '"]');
+
+		// if (!listItem) {
+		// 	return;
+		// }
+
+		// listItem.className = completed ? 'completed' : '';
+
+		// // In case it was toggled from an event and not by clicking the checkbox
+		// qs('input', listItem).checked = completed;
+
+		// 
+		
 		var listItem = qs('[data-id="' + id + '"]');
 
-		if (!listItem) {
-			return;
+		if (listItem) {
+			listItem.className = completed ? 'completed' : '';
+			// On définit la tâche comme terminée par défaut
+			qs('input', listItem).checked = completed;
 		}
-
-		listItem.className = completed ? 'completed' : '';
-
-		// In case it was toggled from an event and not by clicking the checkbox
-		qs('input', listItem).checked = completed;
 	};
 
 	View.prototype._editItem = function (id, title) {
 		var listItem = qs('[data-id="' + id + '"]');
 
-		if (!listItem) {
-			return;
+		// if (!listItem) {
+		// 	return;
+		// }
+
+		// listItem.className = listItem.className + ' editing';
+
+		// var input = document.createElement('input');
+		// input.className = 'edit';
+
+		// listItem.appendChild(input);
+		// input.focus();
+		// input.value = title;
+
+		// amélioration
+
+		if (listItem) {
+			listItem.className = listItem.className + ' editing';
+			var input = document.createElement('input');
+			input.className = 'edit';
+			listItem.appendChild(input);
+			input.focus();
+			input.value = title;
 		}
-
-		listItem.className = listItem.className + ' editing';
-
-		var input = document.createElement('input');
-		input.className = 'edit';
-
-		listItem.appendChild(input);
-		input.focus();
-		input.value = title;
 	};
 
 	View.prototype._editItemDone = function (id, title) {
 		var listItem = qs('[data-id="' + id + '"]');
 
-		if (!listItem) {
-			return;
+		// if (!listItem) {
+		// 	return;
+		// }
+
+		// var input = qs('input.edit', listItem);
+		// listItem.removeChild(input);
+
+		// listItem.className = listItem.className.replace('editing', '');
+
+		// qsa('label', listItem).forEach(function (label) {
+		// 	label.textContent = title;
+		// });
+
+		// amélioration
+
+		var listItem = qs('[data-id="' + id + '"]');
+
+		if (listItem) {
+			var input = qs('input.edit', listItem);
+			listItem.removeChild(input);
+			listItem.className = listItem.className.replace('editing', '');
+			qsa('label', listItem).forEach(function(label) {
+				label.textContent = title;
+			});
 		}
-
-		var input = qs('input.edit', listItem);
-		listItem.removeChild(input);
-
-		listItem.className = listItem.className.replace('editing', '');
-
-		qsa('label', listItem).forEach(function (label) {
-			label.textContent = title;
-		});
 	};
 
 	View.prototype.render = function (viewCmd, parameter) {
