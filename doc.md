@@ -1,68 +1,182 @@
-<p>Liste des différentes améliorations apportées au code de l'application :</p>
+<p>L'application est basée sur le modèle Model View Controller (MVC).</p>
 
 <ul>
-    <li>
-    <a href="#correction-des-bugs">Correction des bugs</a>
-    <ul>
-        <li><a href="#controllerjs---additem---faute-de-frappe"><code>controller.js - addItem()</code> - Faute de frappe</a></li>
-        <li><a href="#storejs---save---cr%c3%a9ation-des-id"><code>store.js - save()</code> - Création des ID</a></li>
-    </ul>
-    </li>
-<li>
-<a href="#simplification-du-code">Simplification du code</a>
-<ul>
-<li>
-<a href="#suppression-code-inutile">Suppression code inutile</a>
-<ul>
-<li>
-<a href="#une-boucle-inutile">Une boucle inutile</a>
-<ul>
-<li><a href="#controllerjs---removeitem-157"><code>controller.js - removeItem()</code> #157</a></li>
+<li>Le modèle (Model) contient les données à afficher. ex: SQL</li>
+<li>La vue (View) contient la présentation de l'interface graphique. ex: HTML &amp; CSS</li>
+<li>Le contrôleur (Controller) contient la logique concernant les actions effectuées par l'utilisateur. ex: JavaScript</li>
 </ul>
-</li>
-<li>
-<a href="#des-conditions-am%c3%a9lior%c3%a9es">Des conditions améliorées</a>
-<ul>
-<li><a href="#controllerjs---additem-99"><code>controller.js - addItem()</code> #99</a></li>
-<li><a href="#storejs---find-42"><code>store.js - find()</code> #42</a></li>
-<li><a href="#viewjs---elementcomplete-48"><code>view.js - _elementComplete()</code> #48</a></li>
-<li><a href="#viewjs---edititem-71"><code>view.js - _editItem()</code> #71</a></li>
-<li><a href="#viewjs---edititemdone-101"><code>view.js - _editItemDone()</code> #101</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<a href="#refactorisation-de-la-m%c3%a9thode-bind">Refactorisation de la méthode <code>bind()</code></a>
-<ul>
-<li><a href="#viewjs---bind-214"><code>view.js - bind()</code> #214</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<h1>
+<a id="user-content-javascript" href="#javascript"></a>Javascript</h1>
+<h2>
+<a id="user-content-appjs" href="#appjs"></a>app.js</h2>
+<p>Permet d'instancier l'application avec la classe <code>Todo</code>.
+On y instancie dans les arguments de son constructeur les classes nécessaires à son fonctionnement.</p>
+```javascript
+function Todo(name) {
+    this.storage = new app.Store(name);
+    this.model = new app.Model(this.storage);
+    this.template = new app.Template();
+    this.view = new app.View(this.template);
+    this.controller = new app.Controller(this.model, this.view);
+}
+```
+<p><code>setView()</code>: Permet de changer la vue en fonction de l'adresse actuelle.</p>
 
-<ul>
-<li><a href="#controllerjs---additem---faute-de-frappe"><code>controller.js - addItem()</code></a>- Faute de frappe</li>
-<li><a href="#storejs---save---création-des-id"><code>store.js - save()</code></a>- Création des ID</li>
-<li><a href="#indexhtml---Correction du bug qui empêchait le 'Toggle All' au clic sur la flèche du champ de saisie"><code>index.html - id="toggle-all"</code></a>- Il manquait un id à la checkbox située à gauche du champ de saisie principal</li>
-<li><a href="#assets---Ajout d'un favicon pour ne plus avoir d'erreur 404"><code>favicon.ico</code></a> - Les navigateurs cherchent par défaut un fichier favicon.ico à la racine du site si aucun favicon n'est mentionné dans les meta du site. Cela implique dont une erreur 404.</li>
-</ul>
-</li>
-
-<a href="#simplification-du-code">Simplification du code</a>
+```javascript
+function setView() {
+  todo.controller.setView(document.location.hash);
+}
+```
 
 <h2>
-<a id="user-content-correction-des-bugs" href="#correction-des-bugs">Correction des bugs</a>
-</h2>
+<a id="user-content-helpersjs" href="#helpersjs"></a>helpers.js</h2>
+<p>Aide pour la manipulation du DOM. Se substitue à l'utilisation d'une librairie.</p>
+<p><code>window.qs</code>: Récupère les éléments html par leurs sélecteurs CSS. <code>qs</code> = Query Selector.</p>
+<p><code>window.qsa</code>: Récupère tout les éléments html par leurs sélecteurs CSS. <code>qsa</code> = Query Selector All.</p>
 
-<h3><a id="user-content-controllerjs---additem---faute-de-frappe" href="#controllerjs---additem---faute-de-frappe"></a><code>controller.js - addItem()</code> - Faute de frappe</h3>
+```javascript
+window.qs = function (selector, scope) {
+  return (scope || document).querySelector(selector);
+};
 
-<p>Le premier bug corrigé correspondait à une faute de frappe sur le nom de la méthode <code>addItem()</code> (<code>adddItem()</code>). Ce bug empêchait tout simplement la création de nouvelles tâches.</p>
+window.qsa = function (selector, scope) {
+  return (scope || document).querySelectorAll(selector);
+};
+```
+
+<p><code>window.$on</code>: Lie un élément voulu à addEventListener.</p>
+
+```javascript
+window.$on = function (target, type, callback, useCapture) {
+  target.addEventListener(type, callback, !!useCapture);
+};
+```
+
+<p><code>window.$delegate</code>: Lie un gestionnaire d'évenement pour tout les éléments correspondant au sélecteur actuel ou futur, basé sur un élément racine.</p>
+
+```javascript
+window.$delegate = function (target, selector, type, handler) {
+  function dispatchEvent(event) {
+    var targetElement = event.target;
+    var potentialElements = window.qsa(selector, target);
+    var hasMatch =
+      Array.prototype.indexOf.call(potentialElements, targetElement) >= 0;
+
+    if (hasMatch) {
+      handler.call(targetElement, event);
+    }
+  }
+
+  var useCapture = type === "blur" || type === "focus";
+
+  window.$on(target, type, dispatchEvent, useCapture);
+};
+```
+
+<p><code>window.$parent</code>: Trouver l'élément parent d'un élement html a partir d'un tag.</p>
+
+```javascript
+window.$parent = function (element, tagName) {
+  if (!element.parentNode) {
+    return;
+  }
+  if (element.parentNode.tagName.toLowerCase() === tagName.toLowerCase()) {
+    return element.parentNode;
+  }
+  return window.$parent(element.parentNode, tagName);
+};
+```
+
+<h2><a id="user-content-controllerjs" href="#controllerjs"></a>controller.js</h2>
+<p>Modifie le modèle et la vue suivant les actions réalisées par l'utilisateur avec la classe <code>Controller</code>.</p>
+
+```javascript
+function Controller(model, view) {
+  var self = this;
+  self.model = model;
+  self.view = view;
+
+  self.view.bind("newTodo", function (title) {
+    self.addItem(title);
+  });
+
+  self.view.bind("itemEdit", function (item) {
+    self.editItem(item.id);
+  });
+
+  self.view.bind("itemEditDone", function (item) {
+    self.editItemSave(item.id, item.title);
+  });
+
+  self.view.bind("itemEditCancel", function (item) {
+    self.editItemCancel(item.id);
+  });
+
+  self.view.bind("itemRemove", function (item) {
+    self.removeItem(item.id);
+  });
+
+  self.view.bind("itemToggle", function (item) {
+    self.toggleComplete(item.id, item.completed);
+  });
+
+  self.view.bind("removeCompleted", function () {
+    self.removeCompletedItems();
+  });
+
+  self.view.bind("toggleAll", function (status) {
+    self.toggleAll(status.completed);
+  });
+}
+```
+
+<p><code>setView()</code>: Charge et initialise la vue.</p>
+
+```javascript
+Controller.prototype.setView = function (locationHash) {
+  var route = locationHash.split("/")[1];
+  var page = route || "";
+  this._updateFilterState(page);
+};
+```
+
+<p><code>showAll()</code>: Décoché au chargement. Récupère les tâches et les affiche dans la liste.</p>
+
+```javascript
+Controller.prototype.showAll = function () {
+  var self = this;
+  self.model.read(function (data) {
+    self.view.render("showEntries", data);
+  });
+};
+```
+
+<p><code>showActive()</code>: Fournit toutes les tâches actives.</p>
+
+```javascript
+Controller.prototype.showActive = function () {
+  var self = this;
+  self.model.read({ completed: false }, function (data) {
+    self.view.render("showEntries", data);
+  });
+};
+```
+
+<p><code>showCompleted()</code>: Fournit toutes les tâches complètes.</p>
+
+```javascript
+Controller.prototype.showCompleted = function () {
+  var self = this;
+  self.model.read({ completed: true }, function (data) {
+    self.view.render("showEntries", data);
+  });
+};
+```
+
+<p><code>addItem()</code>: A utiliser chaque fois qu'on veut ajouter une tâche. A insérer dans l'objet voulu, changera le DOM et sauvegarde la nouvelle tâche.</p>
 
 ```javascript
 Controller.prototype.addItem = function (title) {
-  // avant : adddItem
   var self = this;
 
   if (title.trim() === "") {
@@ -76,65 +190,53 @@ Controller.prototype.addItem = function (title) {
 };
 ```
 
-<h3>
-<a id="user-content-storejs---save---création-des-id" class="anchor" href="#storejs---save---cr%C3%A9ation-des-id"></a><code>store.js - save()</code> - Création des ID</h3>
-
-<p>La création des ID n'est pas un bug mais pourrait le devenir car la façon de créer l'identifiant ne le rend pas unique. Et si deux identifiants étaient amenés à être identique, il y aurait un bug.</p>
-
-<p>Pour corriger celà, il est possible d'utiliser une méthode basée sur la génération de date. On utilisera ici la méthode <code>Date.now()</code> qui renvoie le nombre de millisecondes écoulées depuis le 1er Janvier 1970. Cet identifiant est donc unique !</p>
-
-<p>Voici la méthode save, améliorée :</p>
+<p><code>editItem()</code>: Déclenche l'édition d'une tâche.</p>
 
 ```javascript
-Store.prototype.save = function (updateData, callback, id) {
-  var data = JSON.parse(localStorage[this._dbName]);
-  var todos = data.todos;
+Controller.prototype.editItem = function (id) {
+  var self = this;
+  self.model.read(id, function (data) {
+    self.view.render("editItem", { id: id, title: data[0].title });
+  });
+};
+```
 
-  callback = callback || function () {};
+<p><code>editItemSave()</code>: Valide la fin de l'édition de la tâche.</p>
 
-  // Generate an ID
-  var newId = Date.now();
-  // var charset = "0123456789";
+```javascript
+Controller.prototype.editItemSave = function (id, title) {
+  var self = this;
 
-  // for (var i = 0; i < 6; i++) {
-  // 	newId += charset.charAt(Math.floor(Math.random() * charset.length));
-  // }
+  while (title[0] === " ") {
+    title = title.slice(1);
+  }
 
-  // If an ID was actually given, find the item and update each property
-  if (id) {
-    for (var i = 0; i < todos.length; i++) {
-      if (todos[i].id === id) {
-        for (var key in updateData) {
-          todos[i][key] = updateData[key];
-        }
-        break;
-      }
-    }
+  while (title[title.length - 1] === " ") {
+    title = title.slice(0, -1);
+  }
 
-    localStorage[this._dbName] = JSON.stringify(data);
-    callback.call(this, todos);
+  if (title.length !== 0) {
+    self.model.update(id, { title: title }, function () {
+      self.view.render("editItemDone", { id: id, title: title });
+    });
   } else {
-    // Assign an ID
-    updateData.id = parseInt(newId);
-
-    todos.push(updateData);
-    localStorage[this._dbName] = JSON.stringify(data);
-    callback.call(this, [updateData]);
+    self.removeItem(id);
   }
 };
 ```
 
-<h2><a id="user-content-simplification-du-code" class="anchor" href="#simplification-du-code"></a>Simplification du code</h2>
+<p><code>editItemCancel()</code>: Annule l'édition de la tâche.</p>
 
-<h3><a id="user-content-suppression-code-inutile" class="anchor" href="#suppression-code-inutile"></a>Suppression code inutile</h3>
-<p>Nous avons ici fait des améliorations au niveau de la synthaxe du code. Dans tous les cas, le projet fonctionne mais nos changements améliorent la qualité du code.</p>
-<h4><a id="user-content-des-conditions-améliorées" class="anchor" href="#des-conditions-améliorées"></a>Des conditions améliorées</h4>
+```javascript
+Controller.prototype.editItemCancel = function (id) {
+  var self = this;
+  self.model.read(id, function (data) {
+    self.view.render("editItemDone", { id: id, title: data[0].title });
+  });
+};
+```
 
-<p>L'amélioration ici a été de supprimer la boucle <code>forEach</code> qui servait simplement à afficher un console.log de l'élément supprimé.</p>
-<p>Au lieu de ça, nous avons ajouté ce console.log directement dans la méthode remove du modèle. Grâce à cette amélioration, nous économisons une boucle et un traitement inutile.</p>
-<h5>
-<a id="user-content-controllerjs---removeitem-157" class="anchor" href="#controllerjs---removeitem-157"></a><code>controller.js - removeItem()</code> #157</h5>
-<p>Code initial :</p>
+<p><code>removeItem()</code>: Permet de supprimer la tâche du DOM et de storage par son ID.</p>
 
 ```javascript
 Controller.prototype.removeItem = function (id) {
@@ -142,12 +244,6 @@ Controller.prototype.removeItem = function (id) {
   var items;
   self.model.read(function (data) {
     items = data;
-  });
-
-  items.forEach(function (item) {
-    if (item.id === id) {
-      console.log("Element with ID: " + id + " has been removed.");
-    }
   });
 
   self.model.remove(id, function () {
@@ -158,67 +254,226 @@ Controller.prototype.removeItem = function (id) {
 };
 ```
 
-<p>Code amélioré :</p>
+<p><code>removeCompletedItems()</code>: Supprime toutes les tâches finies du DOM et de storage.</p>
 
 ```javascript
-removeItem(id) {
-    var self = this;
-    var items;
-    self.model.read(function(data) {
-        items = data;
+Controller.prototype.removeCompletedItems = function () {
+  var self = this;
+  self.model.read({ completed: true }, function (data) {
+    data.forEach(function (item) {
+      self.removeItem(item.id);
     });
+  });
 
-    self.model.remove(id, function() {
-        self.view.render('removeItem', id);
-        console.log('Element with ID: ' + id + ' has been removed.');
-    });
-    self._filter();
-}
-
+  self._filter();
+};
 ```
 
-<h4>
-<a id="user-content-des-conditions-améliorées" class="anchor" href="#des-conditions-améliorées"></a>Des conditions améliorées</h4>
-<p>Les 5 cas suivant présentent une amélioration de la syntaxe du code. Au lieu d'utiliser une condition pour effectuer un simple <code>return</code>, nous allons utiliser une condition dans tous le code. C'est une manière plus logique de faire.</p>
-<h5>
-<a id="user-content-controllerjs---additem-99" class="anchor" href="#controllerjs---additem-99"></a><code>controller.js - addItem()</code> #99</h5>
-<p>Code initial :</p>
+<p><code>toggleComplete()</code>: Donne l'ID du modèle et une checkbox, puis met à jour la tâche dans l'espace de stockage en fonction de l'état de la checkbox.</p>
 
 ```javascript
-Controller.prototype.adddItem = function (title) {
+Controller.prototype.toggleComplete = function (id, completed, silent) {
   var self = this;
+  self.model.update(id, { completed: completed }, function () {
+    self.view.render("elementComplete", {
+      id: id,
+      completed: completed,
+    });
+  });
 
-  if (title.trim() === "") {
-    return;
+  if (!silent) {
+    self._filter();
   }
+};
+```
 
-  self.model.create(title, function () {
-    self.view.render("clearNewTodo");
-    self._filter(true);
+<p><code>toggleAll()</code>: Bascule toutes les checkboxs en état on / off. A passer dans l'objet voulu.</p>
+
+```javascript
+Controller.prototype.toggleAll = function (completed) {
+  var self = this;
+  self.model.read({ completed: !completed }, function (data) {
+    data.forEach(function (item) {
+      self.toggleComplete(item.id, completed, true);
+    });
+  });
+
+  self._filter();
+};
+```
+
+<p><code>_updateCount()</code>:Met à jour les endroits de la page qui changent en fonction du nombre de tâches restantes.</p>
+
+```javascript
+Controller.prototype._updateCount = function () {
+  var self = this;
+  self.model.getCount(function (todos) {
+    self.view.render("updateElementCount", todos.active);
+    self.view.render("clearCompletedButton", {
+      completed: todos.completed,
+      visible: todos.completed > 0,
+    });
+
+    self.view.render("toggleAll", { checked: todos.completed === todos.total });
+    self.view.render("contentBlockVisibility", { visible: todos.total > 0 });
   });
 };
 ```
 
-<p>Code amélioré :</p>
+<p><code>_filter()</code>: Refiltre la liste des tâches.</p>
 
 ```javascript
-addItem(title) {
-    var self = this;
+Controller.prototype._filter = function (force) {
+  var activeRoute =
+    this._activeRoute.charAt(0).toUpperCase() + this._activeRoute.substr(1);
 
-    if (title.trim() !== '') {
-        self.model.create(title, function() {
-            self.view.render('clearNewTodo');
-            self._filter(true);
-        });
-    }
-}
+  this._updateCount();
 
+  if (
+    force ||
+    this._lastActiveRoute !== "All" ||
+    this._lastActiveRoute !== activeRoute
+  ) {
+    this["show" + activeRoute]();
+  }
+
+  this._lastActiveRoute = activeRoute;
+};
 ```
 
-<h5>
-<a id="user-content-storejs---find-42" class="anchor" href="#storejs---find-42"></a><code>store.js - find()</code> #42</h5>
+<p><code>_updateFilterState()</code>: Met à jour l'état du filtre sélectionné.</p>
 
-<p>Code initial :</p>
+```javascript
+Controller.prototype._updateFilterState = function (currentPage) {
+  this._activeRoute = currentPage;
+
+  if (currentPage === "") {
+    this._activeRoute = "All";
+  }
+
+  this._filter();
+
+  this.view.render("setFilter", currentPage);
+};
+```
+
+<h2>
+<a id="user-content-modeljs" href="#modeljs"></a>model.js</h2>
+<p>Permet de créer un nouvel objet <code>Model</code> et permettre la manipulation des informations dans <code>LocalStorage</code>.</p>
+
+```javascript
+function Model(storage) {
+  this.storage = storage;
+}
+```
+
+<p><code>create()</code>: Crée un nouvel modèle.</p>
+
+```javascript
+Model.prototype.create = function (title, callback) {
+  title = title || "";
+  callback = callback || function () {};
+
+  var newItem = {
+    title: title.trim(),
+    completed: false,
+  };
+
+  this.storage.save(newItem, callback);
+};
+```
+
+<p><code>read()</code>: Trouve et retourne un modéle dans l'espace de stockage. Ne retourne rien si aucune requête est spécifiée.</p>
+
+```javascript
+Model.prototype.read = function (query, callback) {
+  var queryType = typeof query;
+  callback = callback || function () {};
+
+  if (queryType === "function") {
+    callback = query;
+    return this.storage.findAll(callback);
+  } else if (queryType === "string" || queryType === "number") {
+    query = parseInt(query, 10);
+    this.storage.find({ id: query }, callback);
+  } else {
+    this.storage.find(query, callback);
+  }
+};
+```
+
+<p><code>update()</code>: met à jour une tâche.</p>
+
+```javascript
+Model.prototype.update = function (id, data, callback) {
+  this.storage.save(data, callback, id);
+};
+```
+
+<p><code>remove()</code>: enlever une tâches du stockage.</p>
+
+```javascript
+Model.prototype.remove = function (id, callback) {
+  this.storage.remove(id, callback);
+};
+```
+
+<p><code>removeAll()</code>: enlever tout les tâches du stockage.</p>
+
+```javascript
+Model.prototype.removeAll = function (callback) {
+  this.storage.drop(callback);
+};
+```
+
+<p><code>getCount()</code>: retourne le nombre de tâches.</p>
+
+```javascript
+Model.prototype.getCount = function (callback) {
+  var todos = {
+    active: 0,
+    completed: 0,
+    total: 0,
+  };
+
+  this.storage.findAll(function (data) {
+    data.forEach(function (todo) {
+      if (todo.completed) {
+        todos.completed++;
+      } else {
+        todos.active++;
+      }
+
+      todos.total++;
+    });
+    callback(todos);
+  });
+};
+```
+
+<h2>
+<a id="user-content-storejs" href="#storejs"></a>store.js</h2>
+<p>Permet de créer une BDD temporaire avec la classe <code>Store</code> dans <code>LocalStorage</code>.</p>
+
+```javascript
+function Store(name, callback) {
+  callback = callback || function () {};
+
+  this._dbName = name;
+
+  if (!localStorage[name]) {
+    var data = {
+      todos: [],
+    };
+
+    localStorage[name] = JSON.stringify(data);
+  }
+
+  callback.call(this, JSON.parse(localStorage[name]));
+}
+```
+
+<p><code>find()</code>: Trouve les tâches a partir d'une requête.</p>
 
 ```javascript
 Store.prototype.find = function (query, callback) {
@@ -242,31 +497,199 @@ Store.prototype.find = function (query, callback) {
 };
 ```
 
-<p>Code amélioré :</p>
+<p><code>findAll()</code>: Retourne toute les tâches de l'espace de stockage.</p>
 
 ```javascript
-find(query, callback) {
-    if (callback) {
-        var todos = JSON.parse(localStorage[this._dbName]).todos;
-        callback.call(
-            this,
-            todos.filter(function(todo) {
-                for (var q in query) {
-                    if (query[q] !== todo[q]) {
-                        return false;
-                    }
-                }
-                return true;
-            })
-        );
+Store.prototype.findAll = function (callback) {
+  callback = callback || function () {};
+  callback.call(this, JSON.parse(localStorage[this._dbName]).todos);
+};
+```
+
+<p><code>save()</code>: Sauvegarde une tâche dans la BDD.</p>
+
+```javascript
+Store.prototype.save = function (updateData, callback, id) {
+  var data = JSON.parse(localStorage[this._dbName]);
+  var todos = data.todos;
+
+  callback = callback || function () {};
+
+  var newId = Date.now();
+
+  if (id) {
+    for (var i = 0; i < todos.length; i++) {
+      if (todos[i].id === id) {
+        for (var key in updateData) {
+          todos[i][key] = updateData[key];
+        }
+        break;
+      }
     }
+
+    localStorage[this._dbName] = JSON.stringify(data);
+    callback.call(this, todos);
+  } else {
+    updateData.id = parseInt(newId);
+
+    todos.push(updateData);
+    localStorage[this._dbName] = JSON.stringify(data);
+    callback.call(this, [updateData]);
+  }
+};
+```
+
+<p><code>remove()</code>: Supprime une tâche de la BDD suivant son ID.</p>
+
+```javascript
+Store.prototype.remove = function (id, callback) {
+  var data = JSON.parse(localStorage[this._dbName]);
+  var todos = data.todos;
+  var todoId;
+
+  for (var i = 0; i < todos.length; i++) {
+    if (todos[i].id == id) {
+      todoId = todos[i].id;
+      todos.splice(i, 1);
+    }
+  }
+
+  localStorage[this._dbName] = JSON.stringify(data);
+  callback.call(this, todos);
+};
+```
+
+<p><code>drop()</code>: Vide la BDD actuelle et crée une nouvelle BDD.</p>
+
+```javascript
+Store.prototype.drop = function (callback) {
+  var data = { todos: [] };
+  localStorage[this._dbName] = JSON.stringify(data);
+  callback.call(this, data.todos);
+};
+```
+
+<h2>
+<a id="user-content-templatejs" href="#templatejs"></a>template.js</h2>
+<p>Permet de créer le modèle par défaut avec la classe <code>Template</code>.</p>
+
+```javascript
+function Template() {
+  this.defaultTemplate =
+    '<li data-id="{{id}}" class="{{completed}}">' +
+    '<div class="view">' +
+    '<input class="toggle" type="checkbox" {{checked}}>' +
+    "<label>{{title}}</label>" +
+    '<button class="destroy"></button>' +
+    "</div>" +
+    "</li>";
 }
 ```
 
-<h5>
-<a id="user-content-viewjs---_elementcomplete-48" class="anchor" href="#viewjs---_elementcomplete-48"></a><code>view.js - _elementComplete()</code> #48</h5>
+<p><code>show()</code>: Crée les balises <code>&lt;li&gt;</code> de chaque tâches.</p>
 
-<p>Code initial :</p>
+```javascript
+Template.prototype.show = function (data) {
+  var i, l;
+  var view = "";
+
+  for (i = 0, l = data.length; i < l; i++) {
+    var template = this.defaultTemplate;
+    var completed = "";
+    var checked = "";
+
+    if (data[i].completed) {
+      completed = "completed";
+      checked = "checked";
+    }
+
+    template = template.replace("{{id}}", data[i].id);
+    template = template.replace("{{title}}", escape(data[i].title));
+    template = template.replace("{{completed}}", completed);
+    template = template.replace("{{checked}}", checked);
+
+    view = view + template;
+  }
+
+  return view;
+};
+```
+
+<p><code>itemCounter()</code>: Compteur de tâches restantes.</p>
+
+```javascript
+Template.prototype.itemCounter = function (activeTodos) {
+  var plural = activeTodos === 1 ? "" : "s";
+
+  return "<strong>" + activeTodos + "</strong> item" + plural + " left";
+};
+```
+
+<p><code>clearCompletedButton()</code>: Affiche 'Clear completed' si les tâches complétées sont supérieur à 0.</p>
+
+```javascript
+Template.prototype.clearCompletedButton = function (completedTodos) {
+  if (completedTodos > 0) {
+    return "Clear completed";
+  } else {
+    return "";
+  }
+};
+```
+
+<h2>
+<a id="user-content-viewjs" href="#viewjs"></a>view.js</h2>
+<p>Permet la manipulation du DOM et fait la liaison entre le model et le controller. On utilise dans les méthodes les selecteurs créer dans <code>helpers.js</code>.</p>
+
+```javascript
+function View(template) {
+  this.template = template;
+
+  this.ENTER_KEY = 13;
+  this.ESCAPE_KEY = 27;
+
+  this.$todoList = qs(".todo-list");
+  this.$todoItemCounter = qs(".todo-count");
+  this.$clearCompleted = qs(".clear-completed");
+  this.$main = qs(".main");
+  this.$footer = qs(".footer");
+  this.$toggleAll = qs(".toggle-all");
+  this.$newTodo = qs(".new-todo");
+}
+```
+
+<p><code>_removeItem</code>: Supprime une tâche.</p>
+
+```javascript
+View.prototype._removeItem = function (id) {
+  var elem = qs('[data-id="' + id + '"]');
+
+  if (elem) {
+    this.$todoList.removeChild(elem);
+  }
+};
+```
+
+<p><code>_clearCompletedButton</code>: Affiche ou non 'Clear completed'.</p>
+
+```javascript
+View.prototype._clearCompletedButton = function (completedCount, visible) {
+  this.$clearCompleted.innerHTML =
+    this.template.clearCompletedButton(completedCount);
+  this.$clearCompleted.style.display = visible ? "block" : "none";
+};
+```
+
+<p><code>_setFilter()</code>: Filtre les résultats suivant la page sélectionnée.</p>
+
+```javascript
+View.prototype._setFilter = function (currentPage) {
+  qs(".filters .selected").className = "";
+  qs('.filters [href="#/' + currentPage + '"]').className = "selected";
+};
+```
+
+<p><code>elementComplete()</code>: Définit si une tâche est complète ou non.</p>
 
 ```javascript
 View.prototype._elementComplete = function (id, completed) {
@@ -278,29 +701,11 @@ View.prototype._elementComplete = function (id, completed) {
 
   listItem.className = completed ? "completed" : "";
 
-  // In case it was toggled from an event and not by clicking the checkbox
   qs("input", listItem).checked = completed;
 };
 ```
 
-<p>Code amélioré :</p>
-
-```javascript
-_elementComplete(id, completed) {
-    var listItem = qs('[data-id="' + id + '"]');
-
-    if (listItem) {
-        listItem.className = completed ? 'completed' : '';
-        // On définit la tâche comme terminée par défaut
-        qs('input', listItem).checked = completed;
-    }
-}
-```
-
-<h5>
-<a id="user-content-viewjs---_edititem-71" class="anchor" href="#viewjs---_edititem-71"></a><code>view.js - _editItem()</code> #71</h5>
-
-<p>Code initial :</p>
+<p><code>_editItem()</code>: Affichage lors de l'édition d'une tâche.</p>
 
 ```javascript
 View.prototype._editItem = function (id, title) {
@@ -311,7 +716,6 @@ View.prototype._editItem = function (id, title) {
   }
 
   listItem.className = listItem.className + " editing";
-
   var input = document.createElement("input");
   input.className = "edit";
 
@@ -321,32 +725,11 @@ View.prototype._editItem = function (id, title) {
 };
 ```
 
-<p>Code amélioré :</p>
-
-```javascript
-_editItem(id, title) {
-    var listItem = qs('[data-id="' + id + '"]');
-
-    if (listItem) {
-        listItem.className = listItem.className + ' editing';
-        var input = document.createElement('input');
-        input.className = 'edit';
-        listItem.appendChild(input);
-        input.focus();
-        input.value = title;
-    }
-}
-```
-
-<h5>
-<a id="user-content-viewjs---_edititemdone-101" class="anchor" href="#viewjs---_edititemdone-101"></a><code>view.js - _editItemDone()</code> #101</h5>
-
-<p>Code initial :</p>
+<p><code>_editItemDone()</code>: Affichage lors de la fin de l'édition d'une tâche.</p>
 
 ```javascript
 View.prototype._editItemDone = function (id, title) {
   var listItem = qs('[data-id="' + id + '"]');
-
   if (!listItem) {
     return;
   }
@@ -362,41 +745,136 @@ View.prototype._editItemDone = function (id, title) {
 };
 ```
 
-<p>Code amélioré :</p>
+<p><code>render()</code>: Permet de gérer l'affichage avec les fonctions suivantes:</p>
 
 ```javascript
-_editItemDone(id, title) {
-    var listItem = qs('[data-id="' + id + '"]');
+View.prototype.render = function (viewCmd, parameter) {
+  var self = this;
+  var viewCommands = {
+    showEntries: function () {
+      self.$todoList.innerHTML = self.template.show(parameter);
+    },
+    removeItem: function () {
+      self._removeItem(parameter);
+    },
+    updateElementCount: function () {
+      self.$todoItemCounter.innerHTML = self.template.itemCounter(parameter);
+    },
+    clearCompletedButton: function () {
+      self._clearCompletedButton(parameter.completed, parameter.visible);
+    },
+    contentBlockVisibility: function () {
+      self.$main.style.display = self.$footer.style.display = parameter.visible
+        ? "block"
+        : "none";
+    },
+    toggleAll: function () {
+      self.$toggleAll.checked = parameter.checked;
+    },
+    setFilter: function () {
+      self._setFilter(parameter);
+    },
+    clearNewTodo: function () {
+      self.$newTodo.value = "";
+    },
+    elementComplete: function () {
+      self._elementComplete(parameter.id, parameter.completed);
+    },
+    editItem: function () {
+      self._editItem(parameter.id, parameter.title);
+    },
+    editItemDone: function () {
+      self._editItemDone(parameter.id, parameter.title);
+    },
+  };
 
-    if (listItem) {
-        var input = qs('input.edit', listItem);
-        listItem.removeChild(input);
-        listItem.className = listItem.className.replace('editing', '');
-        qsa('label', listItem).forEach(function(label) {
-            label.textContent = title;
-        });
-    }
-}
+  viewCommands[viewCmd]();
+};
 ```
 
-<h3>
-<a id="user-content-refactorisation-de-la-méthode-bind" class="anchor" href="#refactorisation-de-la-m%C3%A9thode-bind"></a>Refactorisation de la méthode <code>bind()</code>
-</h3>
-
-<p>Nous avons remplacé les conditions <code>if else if</code> par un traitement <code>switch</code>. Ce choix à plusieurs avantages :</p>
-
 <ul>
-<li>Lisibilité du code</li>
-<li>Maintenabilité du code</li>
-<li>Performance du traitement</li>
+<li>
+<p><code>showEntries</code>: Affiche les tâches.</p>
+</li>
+<li>
+<p><code>removeItem</code>: Supprime une tâche.</p>
+</li>
+<li>
+<p><code>updateElementCount</code>: Met à jour le nombre de tâches.</p>
+</li>
+<li>
+<p><code>clearCompletedButton</code>: Met à jour l'affichage de 'Clear completed'.</p>
+</li>
+<li>
+<p><code>contentBlockVisibility</code>: Affiche ou non le footer.</p>
+</li>
+<li>
+<p><code>toggleAll</code>: Bascule toutes les tâches.</p>
+</li>
+<li>
+<p><code>setFilter</code>: Affiche le filtre voulu.</p>
+</li>
+<li>
+<p><code>clearNewTodo</code>: Réinitialise le champ de saisie principal.</p>
+</li>
+<li>
+<p><code>elementComplete</code>: Affiche une tâche complète.</p>
+</li>
+<li>
+<p><code>editItem</code>: Choisit une tâche en cours d'édition.</p>
+</li>
+<li>
+<p><code>editItemDone</code>: Ferme une tâche en cours d'édition.</p>
+</li>
 </ul>
+<p><code>_itemId()</code>: Retourne l'ID d'une tâche.</p>
 
-<p>A plus grande échelle, ce choix améliorerait surement les performances d'un projet.</p>
+```javascript
+View.prototype._itemId = function (element) {
+  var li = $parent(element, "li");
+  return parseInt(li.dataset.id, 10);
+};
+```
 
-<h4>
-<a id="user-content-viewjs---bind-214" class="anchor" href="#viewjs---bind-214"></a><code>view.js - bind()</code> #214</h4>
+<p><code>_bindItemEditDone()</code>: Gère l'arrêt d'édition d'une tâche.</p>
 
-<p>Code initial :</p>
+```javascript
+View.prototype._bindItemEditDone = function (handler) {
+  var self = this;
+  $delegate(self.$todoList, "li .edit", "blur", function () {
+    if (!this.dataset.iscanceled) {
+      handler({
+        id: self._itemId(this),
+        title: this.value,
+      });
+    }
+  });
+
+  $delegate(self.$todoList, "li .edit", "keypress", function (event) {
+    if (event.keyCode === self.ENTER_KEY) {
+      this.blur();
+    }
+  });
+};
+```
+
+<p><code>_bindItemEditCancel()</code>: Gère l'annulation d'édition d'une tâche.</p>
+
+```javascript
+View.prototype._bindItemEditCancel = function (handler) {
+  var self = this;
+  $delegate(self.$todoList, "li .edit", "keyup", function (event) {
+    if (event.keyCode === self.ESCAPE_KEY) {
+      this.dataset.iscanceled = true;
+      this.blur();
+
+      handler({ id: self._itemId(this) });
+    }
+  });
+};
+```
+
+<p><code>bind()</code>: Gère le JavaScript suivant l'événement retourné.</p>
 
 ```javascript
 View.prototype.bind = function (event, handler) {
@@ -436,52 +914,16 @@ View.prototype.bind = function (event, handler) {
 };
 ```
 
-<p>Code amélioré :</p>
+<h1><a id="user-content-css" href="#css"></a>CSS</h1>
+<h2><a id="user-content-indexcss" href="#indexcss"></a>index.css</h2>
+<p>Feuille de style de l'application.</p>
 
-```javascript
-bind(event, handler) {
-    var self = this;
-    // amélioration
-    switch (event) {
-        case 'newTodo':
-            $on(self.$newTodo, 'change', function() {
-                handler(self.$newTodo.value);
-            });
-            break;
-        case 'removeCompleted':
-            $on(self.$clearCompleted, 'click', function() {
-                handler();
-            });
-            break;
-        case 'toggleAll':
-            $on(self.$toggleAll, 'click', function() {
-                handler({ completed: this.checked });
-            });
-            break;
-        case 'itemEdit':
-            $delegate(self.$todoList, 'li label', 'dblclick', function() {
-                handler({ id: self._itemId(this) });
-            });
-            break;
-        case 'itemRemove':
-            $delegate(self.$todoList, '.destroy', 'click', function() {
-                handler({ id: self._itemId(this) });
-            });
-            break;
-        case 'itemToggle':
-            $delegate(self.$todoList, '.toggle', 'click', function() {
-                handler({
-                    id: self._itemId(this),
-                    completed: this.checked,
-                });
-            });
-            break;
-        case 'itemEditDone':
-            self._bindItemEditDone(handler);
-            break;
-        case 'itemEditCancel':
-            self._bindItemEditCancel(handler);
-            break;
-    }
-}
-```
+<h1><a id="user-content-node-modules" href="#node-modules"></a>NODE MODULES</h1>
+<h2><a id="user-content-node-modules" href="#node-modules"></a>node_modules</h2>
+<p>Contient le framework de test Jasmine et ses dépendances</p>
+
+<h1><a id="user-content-test" href="#test"></a>TEST</h1>
+<h2><a id="user-content-test" href="#test"></a>test</h2>
+<p>Contient les tests Jasmine.</p>
+<p><code>ControllerSpec.js </code>: Ce fichier contient les tests Jasmine pour chaque méthode que nous utilisons.</p>
+<p><code>SpecRunner.html : </code>: Permet l'affichage html des résultats de tests Jasmine.</p>
