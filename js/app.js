@@ -1,4 +1,7 @@
 /*global app, $on */
+/**
+ *  @function
+ */
 (function () {
 	'use strict';
 
