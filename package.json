@@ -11,7 +11,7 @@
     "jsdoc": "^3.6.10",
     "jsdoc-to-markdown": "^7.1.1"
   },
-  "script": {
+  "scripts": {
     "doc": "jsdoc -c jsdoc.json",
     "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json"
   }
