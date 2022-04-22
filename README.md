@@ -50,3 +50,8 @@ Pour le dire plus simplement, il faut documenter les éléments suivants :
 - votre audit
 
 Vous pouvez utiliser le format que vous souhaitez (ex. un wiki sur Github, un document en format texte, etc).
+
+### Livrables du projet :
+
+La documentation technique et fonctionnelle, les corrections et améliorations ainsi que les audits sont consultables dans le Wiki :
+[Consulter mle Wiki](https://github.com/Jean-MarcG/ocr-p8/wiki)
